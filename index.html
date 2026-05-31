@@ -136,12 +136,7 @@
     </div>
 
     <script>
-        // 共享数据（所有人都能看到）
-        let messages = [
-            {name:"同学1",content:"高考加油，我们顶峰相见！",time:"2025-06-01 10:00"},
-            {name:"同学2",content:"愿笔锋所至，梦想开花！",time:"2025-06-01 10:05"}
-        ];
-
+        let messages = [];
         window.onload = render;
 
         function render() {
@@ -169,12 +164,11 @@
             }
 
             const d = new Date();
-            const time = `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,0)}-${d.getDate().toString().padStart(2,0)} ${d.getHours().toString().padStart(2,0)}:${d.getMinutes().toString().padStart(2,0)}`;
+            const time = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,0)}-${String(d.getDate()).padStart(2,0)} ${String(d.getHours()).padStart(2,0)}:${String(d.getMinutes()).padStart(2,0)}`;
 
-            // 加入留言
             messages.unshift({ name, content, time });
-
-            alert("发送成功！全班同学都能看到啦！");
+            alert("发送成功！");
+            
             document.getElementById("name").value = "";
             document.getElementById("msg").value = "";
             render();
