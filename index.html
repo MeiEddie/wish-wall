@@ -39,7 +39,6 @@
             color: #636e72;
         }
 
-        /* 留言输入框 */
         .input-card {
             background: white;
             padding: 24px;
@@ -79,7 +78,6 @@
             background: #0770c4;
         }
 
-        /* 留言列表 */
         .message-list {
             display: flex;
             flex-direction: column;
@@ -138,14 +136,18 @@
     </div>
 
     <script>
-        // 读取留言
-        let list = JSON.parse(localStorage.getItem("gaokaoMsg")) || [];
+        const SHEET_ID = "AKfycbydIeC5Xh0I_G5s2VJk9aA9R9Zz9CZzKQ7tX9Ie2G3Qo3Qo3Qo3Qo";
+        const URL = `https://script.google.com/macros/s/${SHEET_ID}/exec`;
 
-        // 页面加载渲染
-        window.onload = render;
+        window.onload = loadMessages();
 
-        // 渲染所有留言
-        function render() {
+        async function loadMessages() {
+            let res = await fetch(URL);
+            let data = await res.json();
+            render(data);
+        }
+
+        function render(list) {
             const box = document.getElementById("list");
             box.innerHTML = "";
             list.forEach(item => {
@@ -160,8 +162,7 @@
             });
         }
 
-        // 发送留言
-        function send() {
+        async function send() {
             const name = document.getElementById("name").value.trim();
             const content = document.getElementById("msg").value.trim();
 
@@ -170,22 +171,14 @@
                 return;
             }
 
-            // 时间
-            const d = new Date();
-            const time = `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,0)}-${d.getDate().toString().padStart(2,0)} ${d.getHours().toString().padStart(2,0)}:${d.getMinutes().toString().padStart(2,0)}`;
+            await fetch(URL, {
+                method: "POST",
+                body: JSON.stringify({ name, content })
+            });
 
-            // 加入列表
-            list.unshift({ name, content, time });
-
-            // 保存本地
-            localStorage.setItem("gaokaoMsg", JSON.stringify(list));
-
-            // 清空
             document.getElementById("name").value = "";
             document.getElementById("msg").value = "";
-
-            // 刷新
-            render();
+            loadMessages();
         }
     </script>
 </body>
