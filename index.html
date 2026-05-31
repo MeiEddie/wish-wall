@@ -39,7 +39,6 @@
             color: #636e72;
         }
 
-        /* 留言输入框 */
         .input-card {
             background: white;
             padding: 24px;
@@ -79,7 +78,6 @@
             background: #0770c4;
         }
 
-        /* 留言列表 */
         .message-list {
             display: flex;
             flex-direction: column;
@@ -138,17 +136,13 @@
     </div>
 
     <script>
-        // 读取留言
-        let list = JSON.parse(localStorage.getItem("gaokaoMsg")) || [];
-
-        // 页面加载渲染
+        let messages = [];
         window.onload = render;
 
-        // 渲染所有留言
         function render() {
             const box = document.getElementById("list");
             box.innerHTML = "";
-            list.forEach(item => {
+            messages.forEach(item => {
                 const div = document.createElement("div");
                 div.className = "message";
                 div.innerHTML = `
@@ -160,7 +154,6 @@
             });
         }
 
-        // 发送留言
         function send() {
             const name = document.getElementById("name").value.trim();
             const content = document.getElementById("msg").value.trim();
@@ -170,21 +163,14 @@
                 return;
             }
 
-            // 时间
             const d = new Date();
-            const time = `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,0)}-${d.getDate().toString().padStart(2,0)} ${d.getHours().toString().padStart(2,0)}:${d.getMinutes().toString().padStart(2,0)}`;
+            const time = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,0)}-${String(d.getDate()).padStart(2,0)} ${String(d.getHours()).padStart(2,0)}:${String(d.getMinutes()).padStart(2,0)}`;
 
-            // 加入列表
-            list.unshift({ name, content, time });
-
-            // 保存本地
-            localStorage.setItem("gaokaoMsg", JSON.stringify(list));
-
-            // 清空
+            messages.unshift({ name, content, time });
+            alert("发送成功！");
+            
             document.getElementById("name").value = "";
             document.getElementById("msg").value = "";
-
-            // 刷新
             render();
         }
     </script>
