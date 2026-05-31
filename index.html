@@ -136,15 +136,23 @@
     </div>
 
     <script>
-        const SHEET_ID = "AKfycbydIeC5Xh0I_G5s2VJk9aA9R9Zz9CZzKQ7tX9Ie2G3Qo3Qo3Qo3Qo";
-        const URL = `https://script.google.com/macros/s/${SHEET_ID}/exec`;
+        // 使用免费开源的 JSONBin 服务，国内可访问
+        const BIN_ID = "679a278cad19ca6b753d1301";
+        const API_KEY = "$2b$10$Xv8wN0A1eE4G5tQV6H7Z8a9b0c1d2e3f4g5h6j7k8l9";
+        const URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
 
+        // 页面加载时获取所有留言
         window.onload = loadMessages();
 
         async function loadMessages() {
-            let res = await fetch(URL);
-            let data = await res.json();
-            render(data);
+            try {
+                let res = await fetch(URL);
+                let data = await res.json();
+                let list = data.record.messages || [];
+                render(list);
+            } catch (e) {
+                console.log("加载失败");
+            }
         }
 
         function render(list) {
@@ -171,14 +179,35 @@
                 return;
             }
 
-            await fetch(URL, {
-                method: "POST",
-                body: JSON.stringify({ name, content })
-            });
+            try {
+                // 获取现有留言
+                let res = await fetch(URL);
+                let data = await res.json();
+                let messages = data.record.messages || [];
 
-            document.getElementById("name").value = "";
-            document.getElementById("msg").value = "";
-            loadMessages();
+                // 新增留言
+                const d = new Date();
+                const time = `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,0)}-${d.getDate().toString().padStart(2,0)} ${d.getHours().toString().padStart(2,0)}:${d.getMinutes().toString().padStart(2,0)}`;
+                
+                messages.unshift({ name, content, time });
+
+                // 保存到云端
+                await fetch(URL, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Api-Key": API_KEY
+                    },
+                    body: JSON.stringify({ messages })
+                });
+
+                alert("发送成功！全班同学都能看到啦！");
+                document.getElementById("name").value = "";
+                document.getElementById("msg").value = "";
+                loadMessages();
+            } catch (e) {
+                alert("发送失败，请稍后再试");
+            }
         }
     </script>
 </body>
