@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>家庭祝福墙</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+
+        body {
+            background: #fdf6f9;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 32px;
+            color: #e65a9c;
+            margin: 30px 0;
+        }
+
+        .input-box {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px 14px;
+            margin: 8px 0;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: none;
+        }
+
+        button {
+            background: #e65a9c;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #d4488a;
+        }
+
+        .message-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .message-card {
+            background: white;
+            padding: 18px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            position: relative;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .name {
+            font-weight: bold;
+            color: #e65a9c;
+            margin-bottom: 6px;
+        }
+
+        .content {
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .time {
+            font-size: 12px;
+            color: #999;
+            margin-top: 8px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1 class="title">🎊 家庭祝福墙 🎊</h1>
+
+        <div class="input-box">
+            <input type="text" id="name" placeholder="请输入你的名字（必填）">
+            <textarea id="content" placeholder="写下你的祝福..."></textarea>
+            <button onclick="sendMsg()">发送祝福</button>
+        </div>
+
+        <div class="message-list" id="messageList"></div>
+    </div>
+
+    <script>
+        // 读取本地保存的留言
+        let messages = JSON.parse(localStorage.getItem('familyMessages')) || [];
+
+        // 渲染所有留言
+        function renderMessages() {
+            const list = document.getElementById('messageList');
+            list.innerHTML = '';
+
+            messages.forEach(msg => {
+                const card = document.createElement('div');
+                card.className = 'message-card';
+                card.innerHTML = `
+                    <div class="name">${msg.name}</div>
+                    <div class="content">${msg.content}</div>
+                    <div class="time">${msg.time}</div>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        // 发送留言
+        function sendMsg() {
+            const name = document.getElementById('name').value.trim();
+            const content = document.getElementById('content').value.trim();
+
+            if (!name || !content) {
+                alert('名字和祝福都要填写哦！');
+                return;
+            }
+
+            const now = new Date();
+            const time = now.getFullYear() + '-' + 
+                        String(now.getMonth()+1).padStart(2, '0') + '-' + 
+                        String(now.getDate()).padStart(2, '0') + ' ' +
+                        String(now.getHours()).padStart(2, '0') + ':' +
+                        String(now.getMinutes()).padStart(2, '0');
+
+            const newMsg = { name, content, time };
+            messages.unshift(newMsg); // 最新的在最上面
+
+            // 保存到本地
+            localStorage.setItem('familyMessages', JSON.stringify(messages));
+
+            // 清空输入框
+            document.getElementById('name').value = '';
+            document.getElementById('content').value = '';
+
+            // 重新渲染
+            renderMessages();
+        }
+
+        // 初始化页面
+        renderMessages();
+    </script>
+
+</body>
+</html>
