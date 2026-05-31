@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>祝福墙</title>
+    <title>高考同学互赠留言墙</title>
     <style>
         * {
             margin: 0;
@@ -13,90 +13,105 @@
         }
 
         body {
-            background: #fdf6f9;
+            background: #f7f9fc;
             padding: 20px;
         }
 
         .container {
-            max-width: 800px;
+            max-width: 700px;
             margin: 0 auto;
         }
 
         .title {
             text-align: center;
-            font-size: 32px;
-            color: #e65a9c;
             margin: 30px 0;
+            color: #2d3436;
         }
 
-        .input-box {
+        .title h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            color: #0984e3;
+        }
+
+        .title p {
+            font-size: 16px;
+            color: #636e72;
+        }
+
+        /* 留言输入框 */
+        .input-card {
             background: white;
-            padding: 20px;
+            padding: 24px;
             border-radius: 16px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
             margin-bottom: 30px;
         }
 
         input, textarea {
             width: 100%;
-            padding: 12px 14px;
-            margin: 8px 0;
-            border: 1px solid #eee;
-            border-radius: 8px;
+            padding: 14px;
+            border: 1px solid #e1e8ed;
+            border-radius: 10px;
             font-size: 15px;
+            margin-bottom: 12px;
             outline: none;
         }
 
         textarea {
-            min-height: 100px;
+            min-height: 110px;
             resize: none;
         }
 
         button {
-            background: #e65a9c;
+            width: 100%;
+            padding: 14px;
+            background: #0984e3;
             color: white;
             border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 16px;
+            font-weight: bold;
             cursor: pointer;
-            margin-top: 10px;
         }
 
         button:hover {
-            background: #d4488a;
+            background: #0770c4;
         }
 
+        /* 留言列表 */
         .message-list {
             display: flex;
             flex-direction: column;
             gap: 16px;
         }
 
-        .message-card {
+        .message {
             background: white;
-            padding: 18px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            position: relative;
-            animation: fadeIn 0.5s ease;
+            padding: 20px;
+            border-radius: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            animation: fadeIn 0.4s ease;
         }
 
         .name {
             font-weight: bold;
-            color: #e65a9c;
-            margin-bottom: 6px;
+            color: #0984e3;
+            margin-bottom: 8px;
+            font-size: 17px;
         }
 
         .content {
-            color: #333;
-            line-height: 1.5;
+            color: #2d3436;
+            line-height: 1.6;
+            font-size: 15px;
         }
 
         .time {
+            margin-top: 10px;
             font-size: 12px;
             color: #999;
-            margin-top: 8px;
+            text-align: right;
         }
 
         @keyframes fadeIn {
@@ -105,75 +120,73 @@
         }
     </style>
 </head>
+
 <body>
-
     <div class="container">
-        <h1 class="title">🎊 祝福墙 🎊</h1>
-
-        <div class="input-box">
-            <input type="text" id="name" placeholder="请输入你的名字（必填）">
-            <textarea id="content" placeholder="写下你的祝福..."></textarea>
-            <button onclick="sendMsg()">发送祝福</button>
+        <div class="title">
+            <h1>🎓 高考同学互赠留言墙</h1>
+            <p>愿我们顶峰相见，前程似锦，未来可期</p>
         </div>
 
-        <div class="message-list" id="messageList"></div>
+        <div class="input-card">
+            <input type="text" id="name" placeholder="你的名字">
+            <textarea id="msg" placeholder="写下你想对同学说的高考祝福..."></textarea>
+            <button onclick="send()">发送留言</button>
+        </div>
+
+        <div class="message-list" id="list"></div>
     </div>
 
     <script>
-        // 读取本地保存的留言
-        let messages = JSON.parse(localStorage.getItem('familyMessages')) || [];
+        // 读取留言
+        let list = JSON.parse(localStorage.getItem("gaokaoMsg")) || [];
+
+        // 页面加载渲染
+        window.onload = render;
 
         // 渲染所有留言
-        function renderMessages() {
-            const list = document.getElementById('messageList');
-            list.innerHTML = '';
-
-            messages.forEach(msg => {
-                const card = document.createElement('div');
-                card.className = 'message-card';
-                card.innerHTML = `
-                    <div class="name">${msg.name}</div>
-                    <div class="content">${msg.content}</div>
-                    <div class="time">${msg.time}</div>
+        function render() {
+            const box = document.getElementById("list");
+            box.innerHTML = "";
+            list.forEach(item => {
+                const div = document.createElement("div");
+                div.className = "message";
+                div.innerHTML = `
+                    <div class="name">${item.name}</div>
+                    <div class="content">${item.content}</div>
+                    <div class="time">${item.time}</div>
                 `;
-                list.appendChild(card);
+                box.appendChild(div);
             });
         }
 
         // 发送留言
-        function sendMsg() {
-            const name = document.getElementById('name').value.trim();
-            const content = document.getElementById('content').value.trim();
+        function send() {
+            const name = document.getElementById("name").value.trim();
+            const content = document.getElementById("msg").value.trim();
 
             if (!name || !content) {
-                alert('名字和祝福都要填写哦！');
+                alert("请填写完整再发送哦！");
                 return;
             }
 
-            const now = new Date();
-            const time = now.getFullYear() + '-' + 
-                        String(now.getMonth()+1).padStart(2, '0') + '-' + 
-                        String(now.getDate()).padStart(2, '0') + ' ' +
-                        String(now.getHours()).padStart(2, '0') + ':' +
-                        String(now.getMinutes()).padStart(2, '0');
+            // 时间
+            const d = new Date();
+            const time = `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,0)}-${d.getDate().toString().padStart(2,0)} ${d.getHours().toString().padStart(2,0)}:${d.getMinutes().toString().padStart(2,0)}`;
 
-            const newMsg = { name, content, time };
-            messages.unshift(newMsg); // 最新的在最上面
+            // 加入列表
+            list.unshift({ name, content, time });
 
-            // 保存到本地
-            localStorage.setItem('familyMessages', JSON.stringify(messages));
+            // 保存本地
+            localStorage.setItem("gaokaoMsg", JSON.stringify(list));
 
-            // 清空输入框
-            document.getElementById('name').value = '';
-            document.getElementById('content').value = '';
+            // 清空
+            document.getElementById("name").value = "";
+            document.getElementById("msg").value = "";
 
-            // 重新渲染
-            renderMessages();
+            // 刷新
+            render();
         }
-
-        // 初始化页面
-        renderMessages();
     </script>
-
 </body>
 </html>
